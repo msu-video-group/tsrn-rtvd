@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+.pytest_cache/
+.ruff_cache/
+.venv/
+.DS_Store
+
+outputs/
+trajectory_models/
+hf_assets/

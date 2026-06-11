@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=80"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tsrn-rtvd"
+version = "0.1.0"
+description = "Real-time trajectory-guided video deblurring with TSRN-RTVD."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+dependencies = [
+    "torch>=2.0",
+    "torchvision>=0.15",
+    "numpy>=1.24,<3",
+    "Pillow>=10.0",
+    "PyYAML>=6.0",
+    "opencv-python>=4.9",
+    "huggingface-hub>=0.24",
+]
+
+[project.optional-dependencies]
+dev = ["build>=1.2", "pre-commit>=3.7", "pytest>=8.0", "ruff>=0.6"]
+
+[project.scripts]
+tsrn-rtvd-demo = "tsrn_rtvd.demo.cli:main"
+tsrn-rtvd-infer-folder = "tsrn_rtvd.infer_folder:main"
+tsrn-rtvd-eval = "tsrn_rtvd.eval:main"
+tsrn-rtvd-train = "tsrn_rtvd.train:main"
+
+[project.urls]
+Homepage = "https://github.com/msu-video-group/tsrn-rtvd"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["tsrn_rtvd*"]
+namespaces = false
+
+[tool.setuptools.package-data]
+"tsrn_rtvd.configs" = ["*.yaml"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

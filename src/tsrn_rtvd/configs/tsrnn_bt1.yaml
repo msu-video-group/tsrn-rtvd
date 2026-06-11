@@ -1,0 +1,46 @@
+experiment:
+  name: tsrnn_bt1
+  seed: 42
+  output_dir: outputs
+  log_interval: 100
+  val_interval: 1
+data:
+  root: /mnt/hdd2/deblurring_datasets/GOPRO_Large
+  traj_root: /mnt/hdd2/deblurring_datasets/GOPRO_trajectories
+  seq_len: 8
+  patch_size: 256
+  test_resize: null
+  num_workers: 8
+  pin_memory: true
+  traj_pose_kind: camera_center
+  traj_rotation_convention: c2w
+  traj_z_ref: 10.0
+  traj_motion_scale: 1.0
+  traj_sign_x: 1.0
+  traj_sign_y: 1.0
+model:
+  name: TSRNN_BT1
+training:
+  epochs: 200
+  batch_size: 4
+  grad_clip: 1.0
+  amp: true
+  resume: null
+optimizer:
+  name: adamw
+  lr: 0.0002
+  weight_decay: 0.0001
+  betas:
+  - 0.9
+  - 0.999
+scheduler:
+  name: cosine
+  T_max: 200
+  eta_min: 1.0e-06
+loss:
+  l1_weight: 0.5
+  charbonnier_weight: 0.5
+  charbonnier_eps: 0.001
+inference:
+  amp: true
+  warmup_frames: 50

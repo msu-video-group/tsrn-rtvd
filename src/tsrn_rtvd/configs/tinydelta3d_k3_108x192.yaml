@@ -1,0 +1,50 @@
+name: tinydelta3d_k3_108x192
+data:
+  root_images: /mnt/hdd2/deblurring_datasets/GOPRO_Large
+  root_trajectories: /mnt/hdd2/deblurring_datasets/GOPRO_trajectories
+  image_subdir: blur
+  train_split: train
+  val_split: test
+  K: 3
+  height: 108
+  width: 192
+  target_frame: center_camera
+  stride: 1
+  max_train_samples:
+  max_val_samples:
+  stats_path: outputs/tinydelta3d_k3_108x192/stats.pt
+model:
+  in_ch: 3
+  D: 128
+  stem_channels: 16
+  stage_channels: [24, 48, 96]
+  stage_depths: [2, 3, 4]
+  pooling: gap
+  grid_pool: [2, 3]
+  temporal_blocks: 2
+  temporal_kernel: 3
+  deploy: false
+loss:
+  use_uncertainty: true
+  smooth_l1_beta: 1.0
+  uncertainty_reg: 0.05
+  log_var_min: -6.0
+  log_var_max: 3.0
+  antisymmetry_weight: 0.02
+train:
+  output_dir: outputs/tinydelta3d_k3_108x192
+  epochs: 50
+  batch_size: 64
+  num_workers: 8
+  lr: 0.0003
+  weight_decay: 0.0001
+  grad_clip_norm: 1.0
+  amp: true
+  compile: false
+  channels_last: true
+  seed: 1337
+  log_every: 50
+  val_every: 1
+  save_every: 1
+  persistent_workers: true
+  prefetch_factor: 4
