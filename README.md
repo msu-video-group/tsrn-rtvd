@@ -53,6 +53,8 @@ deblurred_bgr = result.output_bgr
 
 ## 🛠️ Dev Installation
 
+For training, evaluation, or trajectory estimation, install from a clone and run the commands below from the repository root.
+
 ```shell
 git clone https://github.com/msu-video-group/tsrn-rtvd.git
 cd tsrn-rtvd
@@ -62,28 +64,34 @@ pre-commit install
 
 ## 🗂️ Datasets
 
-Download [GOPRO_Large](https://seungjunnah.github.io/Datasets/gopro.html) and extract it with the original `train` and `test` directories. Set the paths in [tsrnn_bt1.yaml](src/tsrn_rtvd/configs/tsrnn_bt1.yaml) before training or evaluation.
-
-| Config key | Example root | Expected files relative to that root |
-| --- | --- | --- |
-| `data.root` | `/data/GOPRO_Large` | `{train,test}/<scene>/blur/*.png` and `{train,test}/<scene>/sharp/*.png` |
-| `data.traj_root` | `/data/GOPRO_trajectories` | `{train,test}/<scene>/trajectories.npz` |
-
-For trajectory-based training or oracle evaluation, provide the precomputed trajectories separately, using the same split and scene names as the images.
+Download the [paired GoPro dataset](https://seungjunnah.github.io/Datasets/gopro.html) and extract it to `data/GOPRO_Large/`, with frames under `{train,test}/<scene>/{blur,sharp}/*.png`. Precomputed trajectories for all 33 scenes are included in [data/GOPRO_trajectories](data/GOPRO_trajectories).
 
 ## 🧪 Training and Evaluation
 
-Train TSRN-RTVD:
-
 ```shell
+# Evaluate the released model on GoPro (30.08 dB PSNR)
+python tools/evaluate_gopro.py
+
+# Train the restoration model
 tsrn-rtvd-train
+
+# Evaluate a trained checkpoint with precomputed trajectories
+tsrn-rtvd-eval --checkpoint path/to/best.pth --oracle-z-ref 10
 ```
 
-Evaluate a trained checkpoint on the GoPro test split:
+### 🧭 Estimate GoPro trajectories (optional)
+
+To recompute trajectories, download the original 240 fps frames (**GOPRO_Large_all**) from the [GoPro dataset page](https://seungjunnah.github.io/Datasets/gopro.html) and run the estimator on a CUDA GPU.
 
 ```shell
-tsrn-rtvd-eval --checkpoint path/to/best.pth
+python tools/estimate_gopro_trajectories.py \
+  --raw-root data/GOPRO_Large_all \
+  --images-root data/GOPRO_Large \
+  --output-root outputs/GOPRO_estimated \
+  --split train --scene GOPR0372_07_01
 ```
+
+Omit `--scene` to process the whole split.
 
 ## 📖 Citation
 

@@ -9,7 +9,8 @@ Directory layout expected by test.py:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
+from pickle import UnpicklingError
+from zipfile import BadZipFile
 
 import numpy as np
 import torch
@@ -106,18 +107,39 @@ def compute_pixel_disp(
 
 
 def load_traj_npz(npz_path: Path):
+    if not npz_path.is_file():
+        raise FileNotFoundError(
+            f"Missing GoPro trajectory file: {npz_path.resolve()}. Check data.traj_root."
+        )
     try:
-        d = np.load(str(npz_path), allow_pickle=True)
-        names = [Path(str(n)).stem for n in d["image_names"]]
-        poses = d["poses"].astype(np.float64)
-        intrs = d["intrinsics"].astype(np.float64)
-        return names, poses, intrs
-    except Exception:
-        return None
+        with np.load(npz_path, allow_pickle=True) as data:
+            names = [Path(str(n)).stem for n in data["image_names"]]
+            poses = data["poses"].astype(np.float64)
+            intrinsics = data["intrinsics"].astype(np.float64)
+        if (
+            not names
+            or poses.shape != (len(names), 7)
+            or intrinsics.shape != (len(names), 3, 3)
+        ):
+            raise ValueError(
+                "expected one 7-value pose and 3x3 intrinsics matrix per frame"
+            )
+        return names, poses, intrinsics
+    except (
+        ValueError,
+        KeyError,
+        OSError,
+        EOFError,
+        BadZipFile,
+        UnpicklingError,
+    ) as exc:
+        raise ValueError(
+            f"Invalid GoPro trajectory file {npz_path.resolve()}: {exc}"
+        ) from exc
 
 
 class SceneTraj:
-    """One-scene trajectory index; missing/invalid files return zero displacement."""
+    """One-scene trajectory index. Pass None for zero displacement."""
 
     def __init__(
         self,
@@ -136,12 +158,9 @@ class SceneTraj:
         self.sign_y = sign_y
         self.pose_kind = pose_kind
         self.rotation_convention = rotation_convention
-        if npz_path is None or not Path(npz_path).exists():
+        if npz_path is None:
             return
-        result = load_traj_npz(Path(npz_path))
-        if result is None:
-            return
-        names, poses, intrs = result
+        names, poses, intrs = load_traj_npz(Path(npz_path))
         self.stem_to_idx = {name: i for i, name in enumerate(names)}
         self.poses = poses
         self.intrinsics = intrs

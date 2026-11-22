@@ -5,8 +5,8 @@ experiment:
   log_interval: 100
   val_interval: 1
 data:
-  root: /mnt/hdd2/deblurring_datasets/GOPRO_Large
-  traj_root: /mnt/hdd2/deblurring_datasets/GOPRO_trajectories
+  root: data/GOPRO_Large
+  traj_root: data/GOPRO_trajectories
   seq_len: 8
   patch_size: 256
   test_resize: null

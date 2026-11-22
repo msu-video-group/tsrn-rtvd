@@ -34,6 +34,8 @@ import torchvision.transforms.functional as TF
 from PIL import Image
 from torch.utils.data import Dataset
 
+from .dataset import load_traj_npz
+
 # ─────────────────────────────────────────────────────────────────
 # Geometry helpers
 # ─────────────────────────────────────────────────────────────────
@@ -129,18 +131,6 @@ def load_image(path: Path) -> torch.Tensor:
     return TF.to_tensor(Image.open(path).convert("RGB"))  # (3,H,W) float32
 
 
-def load_traj_npz(npz_path: Path):
-    """Returns (image_names, poses, intrinsics) or None on failure."""
-    try:
-        d = np.load(str(npz_path), allow_pickle=True)
-        names = [Path(str(n)).stem for n in d["image_names"]]  # list of stems
-        poses = d["poses"].astype(np.float64)  # (N, 7)
-        intrs = d["intrinsics"].astype(np.float64)  # (N, 3, 3)
-        return names, poses, intrs
-    except Exception:
-        return None
-
-
 # ─────────────────────────────────────────────────────────────────
 # Scene index: maps frame stem → (pose_row, intrinsics_row)
 # ─────────────────────────────────────────────────────────────────
@@ -166,12 +156,9 @@ class SceneTraj:
         self.sign_y = sign_y
         self.pose_kind = pose_kind
         self.rotation_convention = rotation_convention
-        if npz_path is None or not npz_path.exists():
+        if npz_path is None:
             return
-        result = load_traj_npz(npz_path)
-        if result is None:
-            return
-        names, poses, intrs = result
+        names, poses, intrs = load_traj_npz(npz_path)
         self.stem_to_idx = {name: i for i, name in enumerate(names)}
         self.poses = poses
         self.intrinsics = intrs

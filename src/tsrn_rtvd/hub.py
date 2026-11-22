@@ -32,13 +32,14 @@ def resolve_artifacts(
     repo_root: str | Path | None = None,
     *,
     hf_repo_id: str | None = None,
+    revision: str | None = None,
     with_trajectory: bool = True,
     local_files_only: bool = False,
 ) -> ArtifactPaths:
     """Resolve packaged configs and download model artifacts from Hugging Face."""
     repo_id = hf_repo_id or DEFAULT_HF_REPO_ID
     config = package_config_path(TSRNN_CONFIG_NAME)
-    checkpoint = _hf_download(repo_id, HF_TSRNN_CHECKPOINT, local_files_only)
+    checkpoint = _hf_download(repo_id, HF_TSRNN_CHECKPOINT, local_files_only, revision)
 
     if not with_trajectory:
         return ArtifactPaths(config=config, checkpoint=checkpoint)
@@ -48,9 +49,11 @@ def resolve_artifacts(
         checkpoint=checkpoint,
         traj_config=package_config_path(TRAJECTORY_CONFIG_NAME),
         traj_checkpoint=_hf_download(
-            repo_id, HF_TRAJECTORY_CHECKPOINT, local_files_only
+            repo_id, HF_TRAJECTORY_CHECKPOINT, local_files_only, revision
         ),
-        traj_stats=_hf_download(repo_id, HF_TRAJECTORY_STATS, local_files_only),
+        traj_stats=_hf_download(
+            repo_id, HF_TRAJECTORY_STATS, local_files_only, revision
+        ),
     )
 
 
@@ -60,7 +63,9 @@ def package_config_path(name: str) -> Path:
         return Path(path)
 
 
-def _hf_download(repo_id: str, filename: str, local_files_only: bool) -> Path:
+def _hf_download(
+    repo_id: str, filename: str, local_files_only: bool, revision: str | None
+) -> Path:
     try:
         from huggingface_hub import hf_hub_download
     except ImportError as exc:  # pragma: no cover - dependency error path
@@ -72,6 +77,7 @@ def _hf_download(repo_id: str, filename: str, local_files_only: bool) -> Path:
         hf_hub_download(
             repo_id=repo_id,
             filename=filename,
+            revision=revision,
             local_files_only=local_files_only,
         )
     )

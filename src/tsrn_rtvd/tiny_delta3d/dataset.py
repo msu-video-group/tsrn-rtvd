@@ -110,7 +110,7 @@ class GoproTrajectoryDataset(Dataset):
             )
         if not split_traj.exists():
             raise FileNotFoundError(
-                f"Trajectory split directory does not exist: {split_traj}"
+                f"Trajectory split directory does not exist: {split_traj.resolve()}"
             )
 
         self.samples = self._index_samples(split_images, split_traj)
@@ -130,8 +130,12 @@ class GoproTrajectoryDataset(Dataset):
             scene = scene_dir.name
             image_dir = scene_dir / self.image_subdir
             traj_path = split_traj / scene / "trajectories.txt"
-            if not image_dir.exists() or not traj_path.exists():
+            if not image_dir.is_dir():
                 continue
+            if not traj_path.is_file():
+                raise FileNotFoundError(
+                    f"Missing GoPro trajectory file: {traj_path.resolve()}. Check data.root_trajectories."
+                )
             traj = read_trajectory_txt(traj_path)
             image_paths = sorted(image_dir.glob("*.png"), key=_numeric_stem)
             matched = [p for p in image_paths if p.name in traj]

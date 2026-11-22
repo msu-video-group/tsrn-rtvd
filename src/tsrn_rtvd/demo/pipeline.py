@@ -53,6 +53,7 @@ class ProcessResult:
     frame_index: int
     model_ms: float
     total_ms: float
+    output_rgb_tensor: torch.Tensor | None = None
 
 
 class TSRNNWebcamProcessor:
@@ -264,7 +265,9 @@ class TSRNNWebcamProcessor:
         self.cur_frame_bgr = first_frame_bgr.copy()
         self.frame_index = 0
 
-    def process_next(self, next_frame_bgr) -> ProcessResult:
+    def process_next(
+        self, next_frame_bgr, *, return_tensor: bool = False
+    ) -> ProcessResult:
         if self.state is None or self.prev_tensor is None or self.cur_tensor is None:
             raise RuntimeError("Call reset() with the first frame before processing.")
 
@@ -311,6 +314,7 @@ class TSRNNWebcamProcessor:
             frame_index=self.frame_index,
             model_ms=model_ms,
             total_ms=total_ms,
+            output_rgb_tensor=pred if return_tensor else None,
         )
 
     def _predict_motion(

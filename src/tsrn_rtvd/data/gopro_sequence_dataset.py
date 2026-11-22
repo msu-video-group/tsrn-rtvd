@@ -79,7 +79,7 @@ class GoProSequenceDataset(Dataset):
                 continue
             npz = traj_root / scene.name / "trajectories.npz"
             traj = SceneTraj(
-                npz if npz.exists() else None,
+                npz,
                 z_ref=self.traj_z_ref,
                 motion_scale=self.traj_motion_scale,
                 sign_x=self.traj_sign_x,

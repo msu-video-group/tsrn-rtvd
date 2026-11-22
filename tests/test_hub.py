@@ -8,13 +8,18 @@ from tsrn_rtvd import hub
 def test_resolve_artifacts_downloads_from_hf(monkeypatch, tmp_path: Path) -> None:
     calls: list[tuple[str, str, bool]] = []
 
-    def fake_download(repo_id: str, filename: str, local_files_only: bool) -> Path:
+    def fake_download(
+        repo_id: str, filename: str, local_files_only: bool, revision: str | None
+    ) -> Path:
+        assert revision == "paper-revision"
         calls.append((repo_id, filename, local_files_only))
         return tmp_path / filename.replace("/", "_")
 
     monkeypatch.setattr(hub, "_hf_download", fake_download)
 
-    artifacts = hub.resolve_artifacts(hf_repo_id="org/model", local_files_only=True)
+    artifacts = hub.resolve_artifacts(
+        hf_repo_id="org/model", local_files_only=True, revision="paper-revision"
+    )
 
     assert artifacts.config.name == hub.TSRNN_CONFIG_NAME
     assert artifacts.checkpoint == tmp_path / "checkpoints_tsrnn_bt1_exact_ft.pth"
@@ -39,7 +44,9 @@ def test_resolve_artifacts_without_trajectory_downloads_only_tsrnn(
 ) -> None:
     calls: list[tuple[str, str, bool]] = []
 
-    def fake_download(repo_id: str, filename: str, local_files_only: bool) -> Path:
+    def fake_download(
+        repo_id: str, filename: str, local_files_only: bool, revision: str | None
+    ) -> Path:
         calls.append((repo_id, filename, local_files_only))
         return tmp_path / filename.replace("/", "_")
 

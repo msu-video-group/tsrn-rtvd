@@ -24,6 +24,7 @@ class TSRNRTVD:
         device: str = "auto",
         trajectory: bool = True,
         local_files_only: bool = False,
+        revision: str | None = None,
         fast_shift: str = "exact",
         channels_last: bool = False,
         compile_step: bool = False,
@@ -42,6 +43,7 @@ class TSRNRTVD:
         artifacts = resolve_artifacts(
             repo_root,
             hf_repo_id=repo_id,
+            revision=revision,
             with_trajectory=trajectory,
             local_files_only=local_files_only,
         )
@@ -86,5 +88,8 @@ class TSRNRTVD:
     def reset(self, first_frame_bgr: np.ndarray) -> None:
         self.processor.reset(first_frame_bgr)
 
-    def process_next(self, next_frame_bgr: np.ndarray):
+    def process_next(self, next_frame_bgr: np.ndarray, *, return_tensor: bool = False):
+        """Restore the current frame. Set return_tensor for the RGB prediction before quantization."""
+        if return_tensor:
+            return self.processor.process_next(next_frame_bgr, return_tensor=True)
         return self.processor.process_next(next_frame_bgr)

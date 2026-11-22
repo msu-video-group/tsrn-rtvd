@@ -21,7 +21,15 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["build>=1.2", "pre-commit>=3.7", "pytest>=8.0", "ruff>=0.6"]
+dev = [
+    "build>=1.2",
+    "pre-commit>=3.7",
+    "pytest>=8.0",
+    "ruff>=0.6",
+    "scipy",
+    "addict",
+    "depth-anything-3 @ git+https://github.com/ByteDance-Seed/Depth-Anything-3.git@3d835ec1a5802d64a8b8b15f817a1ab54809bfe4",
+]
 
 [project.scripts]
 tsrn-rtvd-demo = "tsrn_rtvd.demo.cli:main"

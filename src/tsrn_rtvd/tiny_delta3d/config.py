@@ -9,8 +9,8 @@ import yaml
 
 @dataclass
 class DataConfig:
-    root_images: str = "/mnt/hdd2/deblurring_datasets/GOPRO_Large"
-    root_trajectories: str = "/mnt/hdd2/deblurring_datasets/GOPRO_trajectories"
+    root_images: str = "data/GOPRO_Large"
+    root_trajectories: str = "data/GOPRO_trajectories"
     image_subdir: str = "blur"
     train_split: str = "train"
     val_split: str = "test"

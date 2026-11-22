@@ -10,5 +10,7 @@ dist/
 .DS_Store
 
 outputs/
+data/GOPRO_Large/
+data/GOPRO_Large_all/
 trajectory_models/
 hf_assets/
